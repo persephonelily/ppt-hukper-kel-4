@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interaktif - Putusnya Perkawinan & Perceraian</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #db2777;          /* Pink / Rose Utama */
+            --primary-light: #f472b6;    /* Pink Muda */
+            --primary-dark: #9d174d;     /* Pink Tua / Magenta Gelap */
+            --bg-main: #fff1f2;          /* Background Soft Pink Sangat Muda */
+            --sidebar-bg: #fff5f7;       /* Background Menu Sidebar */
+            --card-bg: #ffffff;          /* Putih Bersih */
+            --text-dark: #334155;        /* Teks Utama Abu Tua Elegan */
+            --text-muted: #64748b;       /* Teks Deskripsi */
+            --accent: #f43f5e;
+            --border: #fce7f3;           /* Border Pink Tipis */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%);
+            color: var(--text-dark);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        /* App Container */
+        .app-container {
+            width: 100%;
+            max-width: 1200px;
+            height: 90vh;
+            max-height: 800px;
+            background: var(--card-bg);
+            border-radius: 24px;
+            box-shadow: 0 20px 40px -15px rgba(219, 39, 119, 0.15);
+            display: flex; 
+            overflow: hidden;
+            border: 1px solid rgba(244, 114, 182, 0.2);
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 320px;
+            background: var(--sidebar-bg);
+            color: var(--text-dark);
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            overflow-y: auto;
+            border-right: 1px solid var(--border);
+        }
+
+        .sidebar-header {
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border);
+            margin-bottom: 8px;
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.05rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            color: var(--primary-dark);
+            text-transform: uppercase;
+        }
+
+        .sidebar-header p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .nav-btn {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            color: var(--text-dark);
+            padding: 13px 16px;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.01);
+        }
+
+        .nav-btn:hover {
+            background: #fdf2f8;
+            border-color: var(--primary-light);
+            transform: translateX(4px);
+        }
+
+        .nav-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 6px 15px rgba(219, 39, 119, 0.3);
+            font-weight: 700;
+        }
+
+        .nav-btn .icon {
+            font-size: 1.1rem;
+        }
+
+        /* Main Content Panel */
+        .content-panel {
+            flex: 1;
+            padding: 40px 25px;
+            overflow-y: auto;
+            position: relative;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            min-width: 0; 
+        }
+
+        .topic-content {
+            display: none;
+            animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            padding-left: 10px;
+        }
+
+        .topic-content.active {
+            display: flex !important;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Content Styling */
+        .badge {
+            display: inline-block;
+            background: #fdf2f8;
+            color: var(--primary);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: 1px solid #fbcfe8;
+            align-self: flex-start;
+        }
+
+        h1.content-title {
+            font-size: 1.9rem;
+            color: var(--primary-dark);
+            font-weight: 800;
+            margin-bottom: 20px;
+            line-height: 1.3;
+        }
+
+        /* Dua Kolom Layout Konten */
+        .two-column-layout {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 24px;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        /* Kolom Kiri: Card Pengertian */
+        .left-column {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .card {
+            background: #fffbfe;
+            border-left: 4px solid var(--primary);
+            border-radius: 12px;
+            padding: 20px 24px;
+            box-shadow: 0 4px 12px rgba(244, 63, 94, 0.04);
+            border-top: 1px solid var(--border);
+            border-right: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            max-width: 100% !important;
+            word-break: break-word;
+        }
+
+        .card h3 {
+            font-size: 1.1rem;
+            color: var(--primary-dark);
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .card p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: var(--text-dark);
+            text-align: justify;
+        }
+
+        /* Kolom Kanan: Bubble/Pointer Jenis-Jenis */
+        .right-column {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .bubble-container {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .bubble-item {
+            background: linear-gradient(135deg, #ffffff 0%, #fff5f7 100%);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 18px;
+            box-shadow: 0 4px 10px rgba(219, 39, 119, 0.03);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            max-width: 100% !important;
+            word-break: break-word;
+        }
+
+        .bubble-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(219, 39, 119, 0.08);
+            border-color: var(--primary-light);
+        }
+
+        .bubble-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .bubble-badge {
+            background: var(--primary);
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 8px;
+            text-transform: uppercase;
+        }
+
+        .bubble-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+        }
+
+        .bubble-desc {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: var(--text-dark);
+            text-align: justify;
+        }
+
+        /* Title Cover Special */
+        .cover-content {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .cover-content h1 {
+            font-size: 2.3rem;
+            color: var(--primary-dark);
+            font-weight: 800;
+            margin-bottom: 15px;
+            line-height: 1.25;
+        }
+
+        .cover-content p.subtitle {
+            font-size: 1.15rem;
+            color: var(--text-muted);
+            margin-bottom: 30px;
+            font-weight: 500;
+        }
+
+        .lecturer-box {
+            background: #fff1f2;
+            border: 2px dashed var(--primary-light);
+            padding: 15px 30px;
+            border-radius: 50px;
+            color: var(--primary-dark);
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #fbcfe8;
+            border-radius: 10px;
+        }
+
+        /* Responsive Layout Mobile */
+        @media (max-width: 900px) {
+            .two-column-layout {
+                grid-template-columns: 1fr;
+            }
+            .app-container {
+                flex-direction: column;
+                height: auto;
+                max-height: none;
+            }
+            .sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+                height: 200px;
+            }
+            body {
+                height: auto;
+                overflow: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Sidebar Menu Buttons -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>MENU MATERI</h2>
+                <p>Klik topik untuk melihat ringkasan</p>
+            </div>
+
+            <button class="nav-btn active" onclick="showTopic('cover', this)">
+                <span class="icon">🌸</span> Halaman Utama
+            </button>
+            <button class="nav-btn" onclick="showTopic('pendahuluan', this)">
+                <span class="icon">📖</span> Pendahuluan
+            </button>
+            <button class="nav-btn" onclick="showTopic('dasar-hukum', this)">
+                <span class="icon">⚖️</span> Konsep & Dasar Hukum
+            </button>
+            <button class="nav-btn" onclick="showTopic('sebab-bentuk', this)">
+                <span class="icon">🔍</span> Sebab & Bentuk
+            </button>
+            <button class="nav-btn" onclick="showTopic('jenis-perceraian', this)">
+                <span class="icon">📑</span> Jenis Perceraian
+            </button>
+            <button class="nav-btn" onclick="showTopic('alasan', this)">
+                <span class="icon">⚠️</span> Alasan Perceraian
+            </button>
+            <button class="nav-btn" onclick="showTopic('prosedur', this)">
+                <span class="icon">📋</span> Syarat &Prosedur Perceraian
+            </button>
+            <button class="nav-btn" onclick="showTopic('akibat-hukum', this)">
+                <span class="icon">🏛️</span> Akibat Hukum
+            </button>
+            <button class="nav-btn" onclick="showTopic('hak-kewajiban', this)">
+                <span class="icon">📜</span> Hak & Kewajiban Pasca-Cerai
+            </button>
+            <button class="nav-btn" onclick="showTopic('kesimpulan', this)">
+                <span class="icon">📌</span> Kesimpulan
+            </button>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="content-panel">
+
+            <!-- 1. COVER -->
+            <div id="cover" class="topic-content active">
+                <div class="cover-content">
+                    <span class="badge">Presentasi Hukum Perdata</span>
+                    <h1>PUTUSNYA PERKAWINAN, PERCERAIAN DAN AKIBAT HUKUMNYA</h1>
+                    <p class="subtitle">Mata Kuliah: Hukum Perdata</p>
+                    <div class="lecturer-box">
+                        Pengampu: Ibu Annisa Dian Arini, M.H.
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. PENDAHULUAN -->
+            <div id="pendahuluan" class="topic-content">
+                <span class="badge">Latar Belakang</span>
+                <h1 class="content-title">Dinamika Perkawinan & Perceraian</h1>
+                <div class="card">
+                    <h3>Hakikat Perkawinan</h3>
+                    <p>Perkawinan merupakan ikatan lahir batin antara seorang pria dan wanita dengan tujuan membentuk keluarga yang bahagia dan kekal. Dalam hukum Islam, perkawinan bertujuan menciptakan suasana sakinah, mawaddah, dan rahmah, sedangkan dalam hukum positif diakui sebagai perbuatan hukum yang menimbulkan hak dan kewajiban.</p>
+                </div>
+                <div class="card">
+                    <h3>Penyelesaian Perselisihan</h3>
+                    <p>Ketika dinamika rumah tangga tidak lagi berjalan harmonis dan konflik tidak menemukan jalan keluar, hukum memberikan sarana legal berupa putusnya perkawinan (perceraian). Hal ini bertujuan memberikan kepastian hukum dan perlindungan bagi hak-hak suami, istri, maupun anak.</p>
+                </div>
+            </div>
+
+            <!-- 3. DASAR HUKUM -->
+            <div id="dasar-hukum" class="topic-content">
+                <span class="badge">Perbandingan Konsep</span>
+                <h1 class="content-title">Konsep & Dasar Hukum Putusnya Perkawinan</h1>
+                <div class="grid-cards">
+                    <div class="card">
+                        <h3>Perspektif Hukum Islam</h3>
+                <ul>
+                    <li><strong>Esensi Sakral:</strong> Berakhirnya ikatan akad nikah yang sah menurut syariat (dimensi ibadah dan kemaslahatan terganggu).</li>
+                    <li><strong>Aspek Hubungan:</strong> Keberlangsungan pernikahan diukur dari tercapainya tujuan keluarga <em>sakinah, mawaddah, warahmah</em> (QS. Ar-Rum: 21).</li>
+                    <li><strong>Dasar Hukum Indonesia:</strong> Pasal 113 Kompilasi Hukum Islam (KHI); perkawinan dapat putus karena kematian, perceraian, dan putusan pengadilan.</li>
+                </ul>
+                    </div>
+                    <div class="card">
+                        <h3>Perspektif Hukum Positif</h3>
+                        <ul>
+                    <li><strong>Esensi Yuridis:</strong> Berakhirnya hubungan hukum yang diakui, diatur, dan dilindungi oleh negara demi kepastian hukum.</li>
+                    <li><strong>Aspek Status:</strong> Fokus pada legalitas perubahan status keperdataan formal para pihak di mata negara dan pihak ketiga.</li>
+                    <li><strong>Dasar Hukum Utama:</strong> Pasal 38 UU No. 1/1974 (jo. UU No. 16/2019); jalur penyelesaian bagi umat Islam dilakukan secara sah melalui Pengadilan Agama.</li>
+                </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. SEBAB & BENTUK -->
+            <div id="sebab-bentuk" class="topic-content">
+        <span class="badge">Fikih & UU</span>
+    <h1 class="content-title">Sebab dan Bentuk Putusnya Perkawinan</h1>
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+        
+        <!-- KARTU ATAS: HUKUM ISLAM -->
+        <div class="card">
+            <h3>Bentuk Putusnya Perkawinan dalam Hukum Islam</h3>
+            <ul>
+                <li><strong>Talak:</strong> Ikrar sepihak dari suami untuk mengakhiri ikatan perkawinan.</li>
+                <li><strong>Khuluk:</strong> Perceraian atas gugatan istri dengan memberikan tebusan (*iwad*) kepada suami.</li>
+                <li><strong>Fasakh:</strong> Pembatalan atau pemutusan perkawinan oleh hakim karena alasan syar'i.</li>
+                <li><strong>Kematian & Li'an:</strong> Putusnya perkawinan karena salah satu pasangan wafat atau melalui sumpah *li'an*.</li>
+            </ul>
+        </div>
+
+        <!-- KARTU BAWAH: HUKUM POSITIF -->
+        <div class="card">
+            <h3>Sebab Putusnya Perkawinan Menurut Hukum Positif (Pasal 38 UU Perkawinan)</h3>
+            <ul>
+                <li><strong>Kematian:</strong> Pernikahan berakhir demi hukum secara otomatis karena salah satu pihak meninggal dunia.</li>
+                <li><strong>Perceraian:</strong> Putusnya hubungan saat keduanya masih hidup, wajib dilakukan di depan sidang pengadilan.</li>
+                <li><strong>Keputusan Pengadilan:</strong> Pemutusan hubungan hukum formal di luar perceraian biasa, contohnya Pembatalan Perkawinan.</li>
+                <li><strong>Kewenangan Peradilan:</strong> Umat Islam diselesaikan di Pengadilan Agama, sedangkan non-Muslim di Pengadilan Negeri.</li>
+            </ul>
+        </div>
+
+    </div>
+            </div>
+            <!-- 5. JENIS PERCERAIAN -->
+            <div id="jenis-perceraian" class="topic-content">
+                <span class="badge">Klasifikasi Perkara</span>
+                <h1 class="content-title">Jenis-Jenis Perceraian di Indonesia</h1>
+                <div class="grid-cards">
+                    <div class="card">
+                         <h3>Pengertian Perceraian</h3>
+                        <p> Perceraian adalah berakhirnya ikatan perkawinan antara suami dan istri berdasarkan ketentuan hukum yang berlaku. Dalam hukum Islam, perceraian dikenal dengan istilah talak dan furqah, sedangkan dalam
+                            hukum positif Indonesia perceraian hanya dapat dilakukan melalui putusan pengadilan yang berwenang.</p>
+                         <h4>Jenis-Jenis Perceraian</h4>
+                    </div>
+                    <div class="card">
+                        <h3>Jenis-Jenis Perceraian</h3>
+                        <ul>
+                    <li>
+                        <strong>Cerai Talak</strong>:
+                         Perceraian yang diajukan oleh suami ke Pengadilan Agama dan disahkan melalui ikrar talak di persidangan.
+                    </li>
+                    <li>
+                         <strong>Cerai Gugat</strong>:
+                          Perceraian yang diajukan oleh istri kepada Pengadilan Agama tanpa memerlukan ikrar talak dari suami.
+                    </li>
+                     <li>
+                         <strong>Perceraian Non-Muslim</strong>:
+                          Gugatan perceraian yang diajukan ke Pengadilan Negeri oleh pasangan yang beragama selain Islam.
+                    </li>
+                </div>
+            </div>
+             
+            </div>
+            <!-- 6. ALASAN PERCERAIAN -->
+            <div id="alasan" class="topic-content">
+                <span class="badge">Syarat Hukum</span>
+                <h1 class="content-title">Alasan-Alasan Perceraian yang Sah</h1>
+                <p class="desc" style="margin-bottom: 15px;">Menurut PP No. 9/1975 dan Pasal 116 KHI, perceraian hanya dapat dikabulkan jika memenuhi syarat alasan berikut:</p>
+                <div class="grid-cards">
+          <div class="card">
+             <h3>Hukum Positif Indonesia</h3>
+              <ul class="styled-list">
+               <li>Zina atau kebiasaan buruk (mabuk, judi, narkoba, dll.).</li>
+               <li>Meninggalkan pasangan selama 2 tahun berturut-turut.</li>
+               <li>Dihukum penjara 5 tahun atau lebih.</li>
+               <li>KDRT atau penganiayaan berat.</li>
+               <li>Cacat atau penyakit yang menghambat kewajiban perkawinan.</li>
+               <li>Perselisihan dan pertengkaran terus-menerus.</li>
+              </ul>
+    </div>
+
+    <div class="card">
+        <h3>Hukum Islam (KHI)</h3>
+        <ul class="styled-list">
+            <li>Mengakui seluruh alasan dalam hukum positif.</li>
+            <li>Suami melanggar taklik talak.</li>
+            <li>Murtad atau berpindah agama yang menyebabkan ketidakrukunan.</li>
+        </ul>
+    </div>
+
+</div>
+            </div>
+
+           <!-- 7. PROSEDUR PERCERAIAN -->
+<div id="prosedur" class="topic-content">
+    <span class="badge">Tata Cara Persidangan</span>
+
+    <h1 class="content-title">Prosedur & Tahapan Perceraian</h1>
+
+    <p class="desc" style="margin-bottom:15px;">
+        Tata cara perceraian berbeda berdasarkan agama dan lembaga peradilan
+        yang berwenang, yaitu Pengadilan Agama bagi umat Islam dan Pengadilan
+        Negeri bagi pasangan non-Muslim.
+    </p>
+
+    <div class="grid-cards">
+
+        <div class="card">
+            <h3>Prosedur Perceraian (Islam)</h3>
+
+            <p>
+                Perceraian bagi pasangan Islam diproses melalui Pengadilan
+                Agama dalam bentuk cerai talak atau cerai gugat.
+            </p>
+
+            <ol>
+                <li>Menyiapkan dokumen persyaratan.</li>
+                <li>Mengajukan perkara ke Pengadilan Agama.</li>
+                <li>Membayar biaya perkara.</li>
+                <li>Menunggu panggilan sidang.</li>
+                <li>Menjalani mediasi.</li>
+                <li>Mengikuti persidangan.</li>
+                <li>Putusan pengadilan atau ikrar talak.</li>
+                <li>Mendapatkan akta cerai.</li>
+            </ol>
+        </div>
+
+        <div class="card">
+            <h3>Prosedur Perceraian (Non-Muslim)</h3>
+
+            <p>
+                Perceraian bagi pasangan non-Muslim diproses melalui
+                Pengadilan Negeri yang berwenang.
+            </p>
+
+            <ol>
+                <li>Menyiapkan dokumen persyaratan.</li>
+                <li>Mengajukan gugatan perceraian.</li>
+                <li>Membayar biaya perkara.</li>
+                <li>Menghadiri sidang.</li>
+                <li>Menjalani mediasi atau upaya perdamaian.</li>
+                <li>Pemeriksaan perkara dan putusan hakim.</li>
+                <li>Menunggu putusan berkekuatan hukum tetap.</li>
+                <li>Mencatatkan perceraian di Dukcapil.</li>
+            </ol>
+        </div>
+
+    </div>
+</div>
+                       <!-- ================= KOTAK AKIBAT HUKUM (SOLUSI FIX 100%) ================= -->
+            <div id="akibat-hukum" class="topic-content">
+                <style>
+                    /* Trik CSS pintar: Jika tombol sidebar aktif, MAKA paksa konten ini muncul */
+                    .nav-btn.active[onclick*="akibat-hukum"] ~ .content-panel #akibat-hukum,
+                    .nav-btn.active[onclick*="akibat-hukum"] ~ * #akibat-hukum {
+                        display: flex !important;
+                        flex-direction: column;
+                    }
+                </style>
+                <br>
+                <span class="badge">Konsekuensi Hukum</span>
+                <h1 class="content-title">Akibat Hukum Perceraian</h1>
+                <div class="grid-cards">
+                    <div class="card">
+                        <h3>Suami dan Istri</h3>
+                        <ul class="styled-list">
+                            <li>Status perkawinan berakhir setelah putusan pengadilan berkekuatan hukum tetap.</li>
+                            <li>Mantan istri berhak memperoleh nafkah iddah (masa tunggu) dan mut'ah (pemberian penghibur) dari mantan suami.</li>
+                            <li>Dasar hukum utama: Pasal 39 Undang-Undang Perkawinan.</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h3>Anak</h3>
+                        <ul class="styled-list">
+                            <li>Hak asuh dan kepentingan tumbuh kembang anak tetap dilindungi oleh hukum.</li>
+                            <li>Kedua orang tua tetap memiliki kewajiban penuh untuk memelihara dan mendidik anak-anaknya.</li>
+                            <li>Dasar hukum utama: Pasal 41 dan Pasal 45 Undang-Undang Perkawinan.</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h3>Harta Bersama</h3>
+                        <ul class="styled-list">
+                            <li>Harta benda yang diperoleh selama perkawinan berlangsung menjadi objek harta bersama yang harus dibagi.</li>
+                            <li>Pada prinsipnya, pembagian harta bersama dilakukan secara adil sesuai porsi hukum yang berlaku bagi para pihak.</li>
+                            <li>Dasar hukum utama: Pasal 37 Undang-Undang Perkawinan dan Pasal 97 Kompilasi Hukum Islam (KHI).</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= HAK & KEWAJIBAN ================= -->
+            <div id="hak-kewajiban" class="topic-content">
+                <br>
+                <span class="badge">Analisis Hak & Kewajiban</span>
+                <h1 class="content-title">Hak dan Kewajiban Para Pihak Setelah Perceraian</h1>
+                <div class="grid-cards">
+                    <div class="card">
+                        <h3>Hak & Kewajiban Mantan Suami</h3>
+                        <ul class="styled-list">
+                            <li>Bertanggung jawab atas nafkah dan biaya hidup anak (Pasal 41 UU Perkawinan).</li>
+                            <li>Memenuhi kewajiban finansial mantan istri seperti nafkah iddah dan mut'ah (berdasarkan KHI).</li>
+                            <li>Menghormati hak akses pengasuhan agar anak tetap dapat bertemu dengan kedua orang tua.</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h3>Hak & Kewajiban Mantan Istri</h3>
+                        <ul class="styled-list">
+                            <li>Menerima nafkah anak serta nafkah iddah/mut'ah jika memenuhi persyaratan hukum.</li>
+                            <li>Memporteoleh bagian harta bersama sesuai ketentuan porsi hukum yang berlaku.</li>
+                            <li>Mengasuh dan memelihara anak apabila ditetapkan sebagai pemegang hak asuh (Pasal 149, 152, 156 KHI).</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h3>Hak & Perlindungan Anak</h3>
+                        <ul class="styled-list">
+                            <li>Hak pengasuhan dan kepentingan anak tetap dilindungi sepenuhnya.</li>
+                            <li>Orang tua tetap wajib bersama-sama memelihara dan mendidik anak.</li>
+                            <li>Hak nafkah tetap wajib dipenuhi oleh ayah meskipun orang tua telah bercerai.</li>
+                            <li>Dasar hukum utama: Pasal 45 Undang-Undang Perkawinan.</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h3>Pembagian Harta Bersama</h3>
+                        <ul class="styled-list">
+                            <li>Harta yang diperoleh selama masa perkawinan berstatus sebagai harta bersama.</li>
+                            <li>Pembagian harta dilakukan sesuai ketentuan hukum yang berlaku bagi para pihak.</li>
+                            <li>Bagi pasangan Muslim, pada prinsipnya masing-masing pihak memperoleh ½ bagian.</li>
+                            <li>Dasar hukum: Pasal 37 UU Perkawinan dan Pasal 97 KHI.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= KESIMPULAN ================= -->
+            <div id="kesimpulan" class="topic-content">
+                <br>
+                <span class="badge">Rangkuman Akhir</span>
+                <h1 class="content-title">Kesimpulan</h1>
+                <div class="card">
+                    <p><b>1. Jalur Hukum Resmi:</b> Perceraian merupakan pintu darurat terakhir yang wajib dilaksanakan melalui mekanisme persidangan resmi di pengadilan berdasarkan alasan-alasan yang sah.</p>
+                    <p><b>2. Kepastian Hak & Kewajiban:</b> Putusnya perkawinan tidak menghapus kewajiban keperdataan orang tua terhadap anak, melainkan mempertegas jaminan nafkah anak, perlindungan mantan istri, serta pembagian harta bersama secara adil.</p>
+                    <br>
+                    <p>Putusnya perkawinan dalam hukum Indonesia dapat terjadi karena kematian, perceraian, atau putusan pengadilan. Perceraian harus dilakukan melalui proses hukum yang sah dan hanya dapat dikabulkan apabila terdapat alasan yang dibenarkan oleh peraturan perundang-undangan.</p>
+                    <br>
+                    <p>Bagi pasangan beragama Islam, perceraian dapat berbentuk cerai talak maupun cerai gugat yang diperiksa oleh Pengadilan Agama. Sementara itu, pasangan non-Muslim mengajukan gugatan perceraian melalui Pengadilan Negeri sesuai ketentuan yang berlaku.</p>
+                    <br>
+                    <p>Perceraian tidak hanya mengakhiri hubungan suami dan istri, tetapi juga menimbulkan akibat hukum terhadap anak, nafkah, hak asuh, serta pembagian harta bersama. Oleh karena itu, penyelesaian perceraian melalui pengadilan penting untuk memberikan kepastian hukum dan melindungi hak-hak para pihak, terutama kepentingan terbaik bagi anak.</p>
+                </div>
+            </div>
+
+        </div> <!-- Penutup PAN KONTEN UTAMA (.content-panel) -->
+    </div> <!-- Penutup CONTAINER UTAMA (.app-container) -->
+
+    <!-- JAVASCRIPT SYSTEM KUNCI -->
+    <script>
+        function showTopic(topicId, element) {
+            // Sembunyikan semua konten materi
+            const contents = document.querySelectorAll('.topic-content');
+            contents.forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // Matikan status warna aktif di semua tombol menu sidebar
+            const buttons = document.querySelectorAll('.nav-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Tampilkan materi yang dipilih dan nyalakan tombol menu baru
+            const targetContent = document.getElementById(topicId);
+            if(targetContent) {
+                targetContent.classList.add('active');
+            }
+            if(element) {
+                element.classList.add('active');
+            }
+        }
+    </script>
+</body>
+</html>
